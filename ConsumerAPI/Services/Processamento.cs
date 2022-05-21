@@ -10,7 +10,7 @@ namespace ConsumerAPI.Services
 {
     class Processamento
     {
-        static HttpClient client = new HttpClient();
+        static HttpClient client;
 
         public void Iniciar(string[] args)
         {
@@ -19,8 +19,14 @@ namespace ConsumerAPI.Services
 
         static async Task RunAsync()
         {
-            // Update port # in the following line.
-            client.BaseAddress = new Uri("https://localhost:44311/api/pessoa");
+            HttpClientHandler clientHandler = new HttpClientHandler();
+            clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
+
+            // Pass the handler to httpclient(from you are calling api)
+            client = new HttpClient(clientHandler);
+
+            //client.BaseAddress = new Uri("https://localhost:44311/api/pessoa");
+            client.BaseAddress = new Uri("https://localhost:5001/pessoa");
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/json"));
