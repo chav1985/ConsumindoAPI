@@ -9,7 +9,6 @@ namespace ConsumerAPI
         {
             Processamento processamento = new Processamento();
             processamento.Iniciar(args);
-            Console.WriteLine("Hello World!");
         }
     }
 }

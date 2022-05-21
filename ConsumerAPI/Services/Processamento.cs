@@ -1,6 +1,9 @@
-﻿using System;
+﻿using ConsumerAPI.Models;
+using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 
 namespace ConsumerAPI.Services
@@ -24,49 +27,100 @@ namespace ConsumerAPI.Services
 
             try
             {
-                HttpResponseMessage response = await client.GetAsync("");
-                if (response.IsSuccessStatusCode)
+                string opcaoEscolhida;
+
+                do
                 {
-                    var teste = await response.Content.ReadAsStringAsync();
+                    Console.Clear();
+                    Console.Write($"\tSeja bem vindo\n\nEscolha uma das opções abaixo:\n1 - Consultar Pessoas\n2 - Criar Pessoa\n3 - Editar Pessoa\n4 - Consultar Pessoa por Id\n0 - Sair\n\nDigite uma opção: ");
+                    opcaoEscolhida = Console.ReadLine();
+                    int opcaoValida;
+                    bool validaOpcao = int.TryParse(opcaoEscolhida, out opcaoValida);
 
-                    Console.WriteLine($"Saida: {teste}");
-                }
+                    if (validaOpcao)
+                    {
+                        switch (opcaoEscolhida)
+                        {
+                            case "0":
+                                Console.Clear();
+                                Console.WriteLine("\tOpção Escolhida - Sair");
+                                Console.ReadKey();
+                                break;
 
-                //// Create a new product
-                //Product product = new Product
-                //{
-                //    Name = "Gizmo",
-                //    Price = 100,
-                //    Category = "Widgets"
-                //};
+                            case "1":
+                                List<Pessoa> lstPessoas = await ConsultarPessoas();
+                                if (lstPessoas.Count > 0)
+                                {
+                                    foreach (var pessoa in lstPessoas)
+                                    {
+                                        Console.WriteLine($"Id: {pessoa.Id}, Nome: {pessoa.Nome}");
+                                    }
+                                    Console.ReadKey();
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Sem Pessoas Cadastradas.");
+                                    Console.ReadKey();
+                                }
+                                break;
 
-                //var url = await CreateProductAsync(product);
-                //Console.WriteLine($"Created at {url}");
+                            case "2":
+                                if (await CriarPessoa(new Pessoa()))
+                                {
+                                    Console.WriteLine("Pessoa Cadastrada.");
+                                    Console.ReadKey();
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Erro ao Cadastrar a Pessoa.");
+                                    Console.ReadKey();
+                                }
+                                break;
 
-                //// Get the product
-                //product = await GetProductAsync(url.PathAndQuery);
-                //ShowProduct(product);
-
-                //// Update the product
-                //Console.WriteLine("Updating price...");
-                //product.Price = 80;
-                //await UpdateProductAsync(product);
-
-                //// Get the updated product
-                //product = await GetProductAsync(url.PathAndQuery);
-                //ShowProduct(product);
-
-                //// Delete the product
-                //var statusCode = await DeleteProductAsync(product.Id);
-                //Console.WriteLine($"Deleted (HTTP Status = {(int)statusCode})");
-
+                            default:
+                                Console.WriteLine("Opção Inválida!");
+                                Console.ReadKey();
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Opção Inválida!");
+                    }
+                } while (opcaoEscolhida != "0");
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
             }
 
-            Console.ReadLine();
+            Console.ReadKey();
+        }
+
+        static async Task<List<Pessoa>> ConsultarPessoas()
+        {
+            List<Pessoa> pessoas = new List<Pessoa>();
+
+            HttpResponseMessage response = await client.GetAsync(string.Empty);
+            if (response.IsSuccessStatusCode)
+            {
+                //product = await response.Content.ReadAsAsync<Product>();
+
+                pessoas = await response.Content.ReadFromJsonAsync<List<Pessoa>>();
+            }
+            Console.Clear();
+            Console.Write("\tOpção Escolhida - Consultar Pessoas\n");
+            return pessoas;
+        }
+
+        static async Task<bool> CriarPessoa(Pessoa pessoa)
+        {
+            Console.Clear();
+            Console.Write("\tOpção Escolhida - Criar Pessoa\nDigite o nome: ");
+            string nomePessoa = Console.ReadLine();
+            pessoa.Nome = nomePessoa;
+            HttpResponseMessage response = await client.PostAsJsonAsync(string.Empty, pessoa);
+            return response.IsSuccessStatusCode;
         }
     }
 }

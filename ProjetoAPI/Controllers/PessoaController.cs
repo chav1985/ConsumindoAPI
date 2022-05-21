@@ -15,10 +15,6 @@ namespace ProjetoAPI.Controllers
         [Route("")]
         public async Task<ActionResult<List<Pessoa>>> Get([FromServices] DataContext context)
         {
-            //teste
-            context.Pessoas.AddRange(new Pessoa { Nome = "Teste1" }, new Pessoa { Nome = "Teste2" });
-            await context.SaveChangesAsync();
-
             var pessoas = await context.Pessoas
                 .AsNoTracking()
                 .ToListAsync();
