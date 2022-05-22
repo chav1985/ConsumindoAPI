@@ -1,6 +1,7 @@
 ﻿using ConsumerAPI.Models;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -26,7 +27,7 @@ namespace ConsumerAPI.Services
             client = new HttpClient(clientHandler);
 
             //client.BaseAddress = new Uri("https://localhost:44311/api/pessoa");
-            client.BaseAddress = new Uri("https://localhost:5001/pessoa");
+            client.BaseAddress = new Uri("https://localhost:5001/");
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/json"));
@@ -38,7 +39,8 @@ namespace ConsumerAPI.Services
                 do
                 {
                     Console.Clear();
-                    Console.Write($"\tSeja bem vindo\n\nEscolha uma das opções abaixo:\n1 - Consultar Pessoas\n2 - Criar Pessoa\n3 - Editar Pessoa\n4 - Consultar Pessoa por Id\n0 - Sair\n\nDigite uma opção: ");
+                    Console.Write($"\tSeja bem vindo\n\nEscolha uma das opções abaixo:\n1 - Consultar Pessoas\n2 - Criar Pessoa\n3 - Editar Pessoa\n4 - Consultar Pessoa por Id\n0 - Sair\n\n" +
+                        $"Digite uma opção: ");
                     opcaoEscolhida = Console.ReadLine();
                     int opcaoValida;
                     bool validaOpcao = int.TryParse(opcaoEscolhida, out opcaoValida);
@@ -83,6 +85,23 @@ namespace ConsumerAPI.Services
                                 }
                                 break;
 
+                            case "3":
+                                Pessoa itemPessoa = await EditarPessoa(new Pessoa());
+                                if (itemPessoa != null)
+                                {
+                                    Console.WriteLine("Pessoa Editada.");
+                                    Console.ReadKey();
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Erro ao Editar a Pessoa.");
+                                    Console.ReadKey();
+                                }
+                                break;
+
+                            case "4":
+                                break;
+
                             default:
                                 Console.WriteLine("Opção Inválida!");
                                 Console.ReadKey();
@@ -107,11 +126,9 @@ namespace ConsumerAPI.Services
         {
             List<Pessoa> pessoas = new List<Pessoa>();
 
-            HttpResponseMessage response = await client.GetAsync(string.Empty);
+            HttpResponseMessage response = await client.GetAsync("pessoa");
             if (response.IsSuccessStatusCode)
             {
-                //product = await response.Content.ReadAsAsync<Product>();
-
                 pessoas = await response.Content.ReadFromJsonAsync<List<Pessoa>>();
             }
             Console.Clear();
@@ -125,8 +142,27 @@ namespace ConsumerAPI.Services
             Console.Write("\tOpção Escolhida - Criar Pessoa\nDigite o nome: ");
             string nomePessoa = Console.ReadLine();
             pessoa.Nome = nomePessoa;
-            HttpResponseMessage response = await client.PostAsJsonAsync(string.Empty, pessoa);
+            HttpResponseMessage response = await client.PostAsJsonAsync("pessoa", pessoa);
             return response.IsSuccessStatusCode;
+        }
+
+        static async Task<Pessoa> EditarPessoa(Pessoa pessoa)
+        {
+            Console.Clear();
+            Console.Write("\tOpção Escolhida - Editar Pessoa\nDigite o Id da Pessoa: ");
+            string idPessoa = Console.ReadLine();
+            pessoa.Id = Convert.ToInt32(idPessoa);
+            Console.Write("\nDigite o nome: ");
+            string nomePessoa = Console.ReadLine();
+            pessoa.Nome = nomePessoa;
+            
+            HttpResponseMessage response = await client.PutAsJsonAsync(
+                $"pessoa/{pessoa.Id}", pessoa);
+            response.EnsureSuccessStatusCode();
+
+            // Deserialize the updated product from the response body.
+            pessoa = await response.Content.ReadFromJsonAsync<Pessoa>();
+            return pessoa;
         }
     }
 }
