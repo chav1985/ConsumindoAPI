@@ -1,5 +1,6 @@
-﻿using ConsumerAPI.Services;
-using System;
+﻿using ConsumerAPI.Interfaces;
+using ConsumerAPI.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ConsumerAPI
 {
@@ -7,7 +8,11 @@ namespace ConsumerAPI
     {
         static void Main(string[] args)
         {
-            Processamento processamento = new Processamento();
+            var serviceProvider = new ServiceCollection()
+                .AddSingleton<IProcessamento, Processamento>()
+                .BuildServiceProvider();
+
+            var processamento = serviceProvider.GetService<IProcessamento>();
             processamento.Iniciar(args);
         }
     }

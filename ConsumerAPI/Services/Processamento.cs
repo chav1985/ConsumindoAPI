@@ -1,7 +1,7 @@
-﻿using ConsumerAPI.Models;
+﻿using ConsumerAPI.Interfaces;
+using ConsumerAPI.Models;
 using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ConsumerAPI.Services
 {
-    class Processamento
+    class Processamento : IProcessamento
     {
         static HttpClient client;
 
@@ -118,8 +118,6 @@ namespace ConsumerAPI.Services
             {
                 Console.WriteLine(e.Message);
             }
-
-            Console.ReadKey();
         }
 
         static async Task<List<Pessoa>> ConsultarPessoas()
