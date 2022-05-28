@@ -9,7 +9,9 @@ namespace ConsumerAPI
         static void Main(string[] args)
         {
             var serviceProvider = new ServiceCollection()
+                .AddHttpClient()
                 .AddSingleton<IProcessamento, Processamento>()
+                .AddSingleton<IApiConsumer, ApiConsumer>()
                 .BuildServiceProvider();
 
             var processamento = serviceProvider.GetService<IProcessamento>();

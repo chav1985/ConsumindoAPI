@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace ConsumerAPI.Interfaces
+﻿namespace ConsumerAPI.Interfaces
 {
     interface IProcessamento
     {
