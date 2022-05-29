@@ -31,47 +31,50 @@ namespace ConsumerAPI.Services
             {
                 pessoas = await response.Content.ReadFromJsonAsync<List<Pessoa>>();
             }
-            
+
             return pessoas;
         }
 
         public async Task<bool> CriarPessoa(string nomePessoa)
         {
-            Pessoa pessoa = new Pessoa { Nome = nomePessoa};
+            Pessoa pessoa = new Pessoa { Nome = nomePessoa };
             HttpResponseMessage response = await _httpClient.PostAsJsonAsync("pessoa", pessoa);
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<Pessoa> EditarPessoa(Pessoa pessoa)
+        public async Task<Pessoa> EditarPessoa(int idPessoa, string nomePessoa)
         {
-            Console.Clear();
-            Console.Write("\tOpção Escolhida - Editar Pessoa\nDigite o Id da Pessoa: ");
-            string idPessoa = Console.ReadLine();
-            pessoa.Id = Convert.ToInt32(idPessoa);
-            Console.Write("\nDigite o nome: ");
-            string nomePessoa = Console.ReadLine();
-            pessoa.Nome = nomePessoa;
+            Pessoa pessoa = new Pessoa { Id = idPessoa, Nome = nomePessoa };
+            //Console.Clear();
+            //Console.Write("\tOpção Escolhida - Editar Pessoa\nDigite o Id da Pessoa: ");
+            //string idPessoa = Console.ReadLine();
+            //pessoa.Id = Convert.ToInt32(idPessoa);
+            //Console.Write("\nDigite o nome: ");
+            //string nomePessoa = Console.ReadLine();
+            //pessoa.Nome = nomePessoa;
 
             HttpResponseMessage response = await _httpClient.PutAsJsonAsync(
                 $"pessoa/{pessoa.Id}", pessoa);
-            response.EnsureSuccessStatusCode();
 
-            // Deserialize the updated product from the response body.
-            pessoa = await response.Content.ReadFromJsonAsync<Pessoa>();
-            return pessoa;
+            if (response.IsSuccessStatusCode)
+            {
+                // Deserialize the updated product from the response body.
+                pessoa = await response.Content.ReadFromJsonAsync<Pessoa>();
+                return pessoa;
+
+            }
+            return null;
         }
 
         public async Task<Pessoa> ConsultarPessoaById(int id)
         {
-            Pessoa pessoa = new Pessoa();
-
             HttpResponseMessage response = await _httpClient.GetAsync($"pessoa/{id}");
             if (response.IsSuccessStatusCode)
             {
-                pessoa = await response.Content.ReadFromJsonAsync<Pessoa>();
+                return await response.Content.ReadFromJsonAsync<Pessoa>();
             }
 
-            return pessoa;
+            return null;
         }
     }
 }

@@ -8,7 +8,7 @@ namespace ConsumerAPI.Interfaces
     {
         Task<List<Pessoa>> ConsultarPessoas();
         Task<bool> CriarPessoa(string pessoa);
-        Task<Pessoa> EditarPessoa(Pessoa pessoa);
+        Task<Pessoa> EditarPessoa(int idPessoa, string nomePessoa);
         Task<Pessoa> ConsultarPessoaById(int id);
     }
 }

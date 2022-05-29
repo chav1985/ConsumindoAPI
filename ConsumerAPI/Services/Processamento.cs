@@ -83,19 +83,35 @@ namespace ConsumerAPI.Services
                                 }
                                 break;
 
-                            //case "3":
-                            //    Pessoa itemPessoa = await EditarPessoa(new Pessoa());
-                            //    if (itemPessoa != null)
-                            //    {
-                            //        Console.WriteLine("Pessoa Editada.");
-                            //        Console.ReadKey();
-                            //    }
-                            //    else
-                            //    {
-                            //        Console.WriteLine("Erro ao Editar a Pessoa.");
-                            //        Console.ReadKey();
-                            //    }
-                            //    break;
+                            case "3":
+                                Console.Clear();
+                                Console.Write("\tOpção Escolhida - Editar Pessoa\nDigite o Id da Pessoa: ");
+                                string idPes = Console.ReadLine();
+
+                                int valorComp;
+                                if (int.TryParse(idPes, out valorComp))
+                                {
+                                    Console.Write("Digite o nome: ");
+                                    string nomePes = Console.ReadLine();
+                                    Pessoa itemPessoa = await _apiConsumer.EditarPessoa(int.Parse(idPes), nomePes);
+                                    if (itemPessoa != null)
+                                    {
+                                        Console.WriteLine("Pessoa Editada.");
+                                        Console.ReadKey();
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("Erro ao Editar a Pessoa.");
+                                        Console.ReadKey();
+                                    }
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Valor inválido.");
+                                    Console.ReadKey();
+                                }
+
+                                break;
 
                             case "4":
                                 Console.Clear();
@@ -105,8 +121,16 @@ namespace ConsumerAPI.Services
                                 if (int.TryParse(idPessoa, out valorCompara))
                                 {
                                     Pessoa pessoa = await _apiConsumer.ConsultarPessoaById(int.Parse(idPessoa));
-                                    Console.WriteLine($"Id: {pessoa.Id}, Nome: {pessoa.Nome}");
-                                    Console.ReadKey();
+                                    if (pessoa != null)
+                                    {
+                                        Console.WriteLine($"Id: {pessoa.Id}, Nome: {pessoa.Nome}");
+                                        Console.ReadKey();
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine($"Pessoa com o Id {idPessoa} não cadastrada");
+                                        Console.ReadKey();
+                                    }
                                 }
                                 else
                                 {
