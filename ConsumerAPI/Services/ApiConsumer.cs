@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ConsumerAPI.Services
 {
-    class ApiConsumer : IApiConsumer
+    public class ApiConsumer : IApiConsumer
     {
         private readonly HttpClient _httpClient;
 

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace ConsumerAPI.Interfaces
 {
-    interface IApiConsumer
+    public interface IApiConsumer
     {
         Task<List<Pessoa>> ConsultarPessoas();
         Task<bool> CriarPessoa(Pessoa pessoa);

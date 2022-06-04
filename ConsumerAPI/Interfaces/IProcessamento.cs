@@ -1,6 +1,6 @@
 ﻿namespace ConsumerAPI.Interfaces
 {
-    interface IProcessamento
+    public interface IProcessamento
     {
         void Iniciar(string[] args);
     }

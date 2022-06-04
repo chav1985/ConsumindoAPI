@@ -3,7 +3,7 @@ using System;
 
 namespace ConsumerAPI.Helpers
 {
-    internal class ConsoleIO : IConsoleIO
+    public class ConsoleIO : IConsoleIO
     {
         public void Clear()
         {

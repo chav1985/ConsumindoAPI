@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ConsumerAPI.Services
 {
-    class Processamento : IProcessamento
+    public class Processamento : IProcessamento
     {
         private readonly IApiConsumer _apiConsumer;
         private readonly IConsoleIO _console;

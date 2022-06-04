@@ -2,7 +2,7 @@
 
 namespace ConsumerAPI.Models
 {
-    class Pessoa
+    public class Pessoa
     {
         [JsonProperty("Id")]
         public int Id { get; set; }
