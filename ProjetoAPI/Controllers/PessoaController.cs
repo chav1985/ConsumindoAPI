@@ -50,7 +50,7 @@ namespace ProjetoAPI.Controllers
 
             if (pessoa == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
             return pessoa;
@@ -72,7 +72,7 @@ namespace ProjetoAPI.Controllers
 
             if (pessoaExiste == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
             if (ModelState.IsValid)
@@ -98,7 +98,7 @@ namespace ProjetoAPI.Controllers
 
             if (pessoa == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
             context.Pessoas.Remove(pessoa);
