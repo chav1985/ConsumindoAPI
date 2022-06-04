@@ -16,7 +16,7 @@ namespace ConsumerAPI.Services
         public ApiConsumer(HttpClient httpClient)
         {
             _httpClient = httpClient;
-            _httpClient.BaseAddress = new Uri("https://localhost:5001");
+            _httpClient.BaseAddress = new Uri("https://localhost:5010");
             _httpClient.DefaultRequestHeaders.Accept.Clear();
             _httpClient.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/json"));
