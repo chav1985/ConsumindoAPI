@@ -9,18 +9,15 @@ namespace ConsumerAPI.Services
     class Processamento : IProcessamento
     {
         private readonly IApiConsumer _apiConsumer;
+        private readonly IConsoleIO _console;
 
-        public Processamento(IApiConsumer apiConsumer)
+        public Processamento(IApiConsumer apiConsumer, IConsoleIO console)
         {
             _apiConsumer = apiConsumer;
+            _console = console;
         }
 
         public void Iniciar(string[] args)
-        {
-            RunAsync().GetAwaiter().GetResult();
-        }
-
-        async Task RunAsync()
         {
             try
             {
@@ -28,8 +25,8 @@ namespace ConsumerAPI.Services
 
                 do
                 {
-                    Console.Clear();
-                    Console.Write($"\tSeja bem vindo\n\nEscolha uma das opções abaixo:" +
+                    _console.Clear();
+                    _console.Write($"\tSeja bem vindo\n\nEscolha uma das opções abaixo:" +
                         $"\n1 - Consultar Pessoas" +
                         $"\n2 - Criar Pessoa" +
                         $"\n3 - Editar Pessoa" +
@@ -37,7 +34,7 @@ namespace ConsumerAPI.Services
                         $"\n5 - Excluir Pessoa" +
                         $"\n0 - Sair\n\n" +
                         $"Digite uma opção: ");
-                    opcaoEscolhida = Console.ReadLine();
+                    opcaoEscolhida = _console.ReadLine();
                     int opcaoValida;
                     bool validaOpcao = int.TryParse(opcaoEscolhida, out opcaoValida);
 
@@ -46,144 +43,175 @@ namespace ConsumerAPI.Services
                         switch (opcaoEscolhida)
                         {
                             case "0":
-                                Console.Clear();
-                                Console.WriteLine("\tOpção Escolhida - Sair");
-                                Console.ReadKey();
+                                SairAplicacao();
                                 break;
 
                             case "1":
-                                Console.Clear();
-                                Console.Write("\tOpção Escolhida - Consultar Pessoas\n");
-
-                                List<Pessoa> lstPessoas = await _apiConsumer.ConsultarPessoas();
-                                if (lstPessoas is not null && lstPessoas.Count > 0)
-                                {
-                                    foreach (var pessoa in lstPessoas)
-                                    {
-                                        Console.WriteLine($"Id: {pessoa.Id}, Nome: {pessoa.Nome}");
-                                    }
-                                    Console.ReadKey();
-                                }
-                                else
-                                {
-                                    Console.WriteLine("Sem Pessoas Cadastradas.");
-                                    Console.ReadKey();
-                                }
+                                ConsultarPessoas().Wait();
                                 break;
 
                             case "2":
-                                Console.Clear();
-                                Console.Write("\tOpção Escolhida - Criar Pessoa\nDigite o nome: ");
-                                string nomePessoa = Console.ReadLine();
-
-                                if (await _apiConsumer.CriarPessoa(new Pessoa { Nome = nomePessoa }))
-                                {
-                                    Console.WriteLine("Pessoa Cadastrada.");
-                                    Console.ReadKey();
-                                }
-                                else
-                                {
-                                    Console.WriteLine("Erro ao Cadastrar a Pessoa.");
-                                    Console.ReadKey();
-                                }
+                                CriarPessoa().Wait();
                                 break;
 
                             case "3":
-                                Console.Clear();
-                                Console.Write("\tOpção Escolhida - Editar Pessoa\nDigite o Id da Pessoa: ");
-                                string idPes = Console.ReadLine();
-
-                                int valorComp;
-                                if (int.TryParse(idPes, out valorComp))
-                                {
-                                    Console.Write("Digite o nome: ");
-                                    string nomePes = Console.ReadLine();
-                                    Pessoa itemPessoa = await _apiConsumer.EditarPessoa(new Pessoa { Id = int.Parse(idPes), Nome = nomePes });
-                                    if (itemPessoa != null)
-                                    {
-                                        Console.WriteLine("Pessoa Editada.");
-                                        Console.ReadKey();
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine("Erro ao Editar a Pessoa.");
-                                        Console.ReadKey();
-                                    }
-                                }
-                                else
-                                {
-                                    Console.WriteLine("Valor inválido.");
-                                    Console.ReadKey();
-                                }
-
+                                EditarPessoa().Wait();
                                 break;
 
                             case "4":
-                                Console.Clear();
-                                Console.Write("\tOpção Escolhida - Consultar Pessoa por Id\nDigite o Id da pessoa: ");
-                                string idPessoa = Console.ReadLine();
-                                int valorCompara;
-                                if (int.TryParse(idPessoa, out valorCompara))
-                                {
-                                    Pessoa pessoa = await _apiConsumer.ConsultarPessoaById(int.Parse(idPessoa));
-                                    if (pessoa != null)
-                                    {
-                                        Console.WriteLine($"Id: {pessoa.Id}, Nome: {pessoa.Nome}");
-                                        Console.ReadKey();
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine($"Pessoa com o Id {idPessoa} não cadastrada");
-                                        Console.ReadKey();
-                                    }
-                                }
-                                else
-                                {
-                                    Console.WriteLine("Valor invalido.");
-                                    Console.ReadKey();
-                                }
+                                ConsultarPessoaId().Wait();
                                 break;
 
                             case "5":
-                                Console.Clear();
-                                Console.Write("\tOpção Escolhida - Excluir Pessoa\nDigite o Id da pessoa a excluir: ");
-                                string idPesExcluir = Console.ReadLine();
-                                if (int.TryParse(idPesExcluir, out valorCompara))
-                                {
-                                    if (await _apiConsumer.ExcluirPessoa(int.Parse(idPesExcluir)))
-                                    {
-                                        Console.WriteLine($"Pessoa com o Id {idPesExcluir} excluida");
-                                        Console.ReadKey();
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine($"Pessoa com o Id {idPesExcluir} não cadastrada");
-                                        Console.ReadKey();
-                                    }
-                                }
-                                else
-                                {
-                                    Console.WriteLine("Valor invalido.");
-                                    Console.ReadKey();
-                                }
+                                ExcluirPessoa().Wait();
                                 break;
 
                             default:
-                                Console.WriteLine("Opção Inválida!");
-                                Console.ReadKey();
+                                _console.WriteLine("Opção Inválida!");
+                                _console.ReadKey();
                                 break;
                         }
                     }
                     else
                     {
-                        Console.WriteLine("Opção Inválida!");
+                        _console.WriteLine("Opção Inválida!");
+                        _console.ReadKey();
                     }
                 } while (opcaoEscolhida != "0");
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                _console.WriteLine($"Erro na aplicação: {e.Message}");
             }
+        }
+
+        public async Task ConsultarPessoas()
+        {
+            _console.Clear();
+            _console.Write("\tOpção Escolhida - Consultar Pessoas\n");
+
+            List<Pessoa> lstPessoas = await _apiConsumer.ConsultarPessoas();
+            if (lstPessoas is not null && lstPessoas.Count > 0)
+            {
+                foreach (var pessoa in lstPessoas)
+                {
+                    _console.WriteLine($"Id: {pessoa.Id}, Nome: {pessoa.Nome}");
+                }
+                _console.ReadKey();
+            }
+            else
+            {
+                _console.WriteLine("Sem Pessoas Cadastradas.");
+                _console.ReadKey();
+            }
+        }
+
+        public async Task CriarPessoa()
+        {
+            _console.Clear();
+            _console.Write("\tOpção Escolhida - Criar Pessoa\nDigite o nome: ");
+            string nomePessoa = _console.ReadLine();
+
+            if (await _apiConsumer.CriarPessoa(new Pessoa { Nome = nomePessoa }))
+            {
+                _console.WriteLine("Pessoa Cadastrada.");
+                _console.ReadKey();
+            }
+            else
+            {
+                _console.WriteLine("Erro ao Cadastrar a Pessoa.");
+                _console.ReadKey();
+            }
+        }
+
+        public async Task EditarPessoa()
+        {
+            _console.Clear();
+            _console.Write("\tOpção Escolhida - Editar Pessoa\nDigite o Id da Pessoa: ");
+            string idPes = _console.ReadLine();
+
+            int valorComp;
+            if (int.TryParse(idPes, out valorComp))
+            {
+                _console.Write("Digite o nome: ");
+                string nomePes = _console.ReadLine();
+                Pessoa itemPessoa = await _apiConsumer.EditarPessoa(new Pessoa { Id = int.Parse(idPes), Nome = nomePes });
+                if (itemPessoa != null)
+                {
+                    _console.WriteLine("Pessoa Editada.");
+                    _console.ReadKey();
+                }
+                else
+                {
+                    _console.WriteLine("Erro ao Editar a Pessoa.");
+                    _console.ReadKey();
+                }
+            }
+            else
+            {
+                _console.WriteLine("Valor inválido.");
+                _console.ReadKey();
+            }
+        }
+
+        public async Task ConsultarPessoaId()
+        {
+            _console.Clear();
+            _console.Write("\tOpção Escolhida - Consultar Pessoa por Id\nDigite o Id da pessoa: ");
+            string idPessoa = _console.ReadLine();
+            int valorCompara;
+            if (int.TryParse(idPessoa, out valorCompara))
+            {
+                Pessoa pessoa = await _apiConsumer.ConsultarPessoaById(int.Parse(idPessoa));
+                if (pessoa != null)
+                {
+                    _console.WriteLine($"Id: {pessoa.Id}, Nome: {pessoa.Nome}");
+                    _console.ReadKey();
+                }
+                else
+                {
+                    _console.WriteLine($"Pessoa com o Id {idPessoa} não cadastrada");
+                    _console.ReadKey();
+                }
+            }
+            else
+            {
+                _console.WriteLine("Valor invalido.");
+                _console.ReadKey();
+            }
+        }
+
+        public async Task ExcluirPessoa()
+        {
+            _console.Clear();
+            _console.Write("\tOpção Escolhida - Excluir Pessoa\nDigite o Id da pessoa a excluir: ");
+            string idPesExcluir = _console.ReadLine();
+            int valorCompara;
+            if (int.TryParse(idPesExcluir, out valorCompara))
+            {
+                if (await _apiConsumer.ExcluirPessoa(int.Parse(idPesExcluir)))
+                {
+                    _console.WriteLine($"Pessoa com o Id {idPesExcluir} excluida");
+                    _console.ReadKey();
+                }
+                else
+                {
+                    _console.WriteLine($"Pessoa com o Id {idPesExcluir} não cadastrada");
+                    _console.ReadKey();
+                }
+            }
+            else
+            {
+                _console.WriteLine("Valor invalido.");
+                _console.ReadKey();
+            }
+        }
+
+        public void SairAplicacao()
+        {
+            _console.Clear();
+            _console.WriteLine("\tOpção Escolhida - Sair");
+            _console.ReadKey();
         }
     }
 }

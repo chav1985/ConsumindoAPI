@@ -1,4 +1,5 @@
-﻿using ConsumerAPI.Interfaces;
+﻿using ConsumerAPI.Helpers;
+using ConsumerAPI.Interfaces;
 using ConsumerAPI.Services;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,6 +13,7 @@ namespace ConsumerAPI
                 .AddHttpClient()
                 .AddSingleton<IProcessamento, Processamento>()
                 .AddSingleton<IApiConsumer, ApiConsumer>()
+                .AddSingleton<IConsoleIO, ConsoleIO>()
                 .BuildServiceProvider();
 
             var processamento = serviceProvider.GetService<IProcessamento>();
