@@ -56,9 +56,8 @@ namespace ConsumerAPI.Services
                                 Console.Write("\tOpção Escolhida - Consultar Pessoas\n");
 
                                 List<Pessoa> lstPessoas = await _apiConsumer.ConsultarPessoas();
-                                if (lstPessoas.Count > 0)
+                                if (lstPessoas is not null && lstPessoas.Count > 0)
                                 {
-
                                     foreach (var pessoa in lstPessoas)
                                     {
                                         Console.WriteLine($"Id: {pessoa.Id}, Nome: {pessoa.Nome}");
