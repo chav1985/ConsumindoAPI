@@ -7,8 +7,9 @@ namespace ConsumerAPI.Interfaces
     interface IApiConsumer
     {
         Task<List<Pessoa>> ConsultarPessoas();
-        Task<bool> CriarPessoa(string pessoa);
-        Task<Pessoa> EditarPessoa(int idPessoa, string nomePessoa);
+        Task<bool> CriarPessoa(Pessoa pessoa);
+        Task<Pessoa> EditarPessoa(Pessoa pessoa);
         Task<Pessoa> ConsultarPessoaById(int id);
+        Task<bool> ExcluirPessoa(int id);
     }
 }

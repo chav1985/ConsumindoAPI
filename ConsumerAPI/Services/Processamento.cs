@@ -29,7 +29,13 @@ namespace ConsumerAPI.Services
                 do
                 {
                     Console.Clear();
-                    Console.Write($"\tSeja bem vindo\n\nEscolha uma das opções abaixo:\n1 - Consultar Pessoas\n2 - Criar Pessoa\n3 - Editar Pessoa\n4 - Consultar Pessoa por Id\n0 - Sair\n\n" +
+                    Console.Write($"\tSeja bem vindo\n\nEscolha uma das opções abaixo:" +
+                        $"\n1 - Consultar Pessoas" +
+                        $"\n2 - Criar Pessoa" +
+                        $"\n3 - Editar Pessoa" +
+                        $"\n4 - Consultar Pessoa por Id" +
+                        $"\n5 - Excluir Pessoa" +
+                        $"\n0 - Sair\n\n" +
                         $"Digite uma opção: ");
                     opcaoEscolhida = Console.ReadLine();
                     int opcaoValida;
@@ -71,7 +77,7 @@ namespace ConsumerAPI.Services
                                 Console.Write("\tOpção Escolhida - Criar Pessoa\nDigite o nome: ");
                                 string nomePessoa = Console.ReadLine();
 
-                                if (await _apiConsumer.CriarPessoa(nomePessoa))
+                                if (await _apiConsumer.CriarPessoa(new Pessoa { Nome = nomePessoa }))
                                 {
                                     Console.WriteLine("Pessoa Cadastrada.");
                                     Console.ReadKey();
@@ -93,7 +99,7 @@ namespace ConsumerAPI.Services
                                 {
                                     Console.Write("Digite o nome: ");
                                     string nomePes = Console.ReadLine();
-                                    Pessoa itemPessoa = await _apiConsumer.EditarPessoa(int.Parse(idPes), nomePes);
+                                    Pessoa itemPessoa = await _apiConsumer.EditarPessoa(new Pessoa { Id = int.Parse(idPes), Nome = nomePes });
                                     if (itemPessoa != null)
                                     {
                                         Console.WriteLine("Pessoa Editada.");
@@ -129,6 +135,30 @@ namespace ConsumerAPI.Services
                                     else
                                     {
                                         Console.WriteLine($"Pessoa com o Id {idPessoa} não cadastrada");
+                                        Console.ReadKey();
+                                    }
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Valor invalido.");
+                                    Console.ReadKey();
+                                }
+                                break;
+
+                            case "5":
+                                Console.Clear();
+                                Console.Write("\tOpção Escolhida - Excluir Pessoa\nDigite o Id da pessoa a excluir: ");
+                                string idPesExcluir = Console.ReadLine();
+                                if (int.TryParse(idPesExcluir, out valorCompara))
+                                {
+                                    if (await _apiConsumer.ExcluirPessoa(int.Parse(idPesExcluir)))
+                                    {
+                                        Console.WriteLine($"Pessoa com o Id {idPesExcluir} excluida");
+                                        Console.ReadKey();
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine($"Pessoa com o Id {idPesExcluir} não cadastrada");
                                         Console.ReadKey();
                                     }
                                 }

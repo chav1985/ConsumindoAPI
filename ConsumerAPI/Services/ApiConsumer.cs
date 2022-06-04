@@ -24,43 +24,30 @@ namespace ConsumerAPI.Services
 
         public async Task<List<Pessoa>> ConsultarPessoas()
         {
-            List<Pessoa> pessoas = new List<Pessoa>();
-
             HttpResponseMessage response = await _httpClient.GetAsync("pessoa");
-            if (response.IsSuccessStatusCode)
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                pessoas = await response.Content.ReadFromJsonAsync<List<Pessoa>>();
+                return await response.Content.ReadFromJsonAsync<List<Pessoa>>();
             }
 
-            return pessoas;
+            return null;
         }
 
-        public async Task<bool> CriarPessoa(string nomePessoa)
+        public async Task<bool> CriarPessoa(Pessoa pessoa)
         {
-            Pessoa pessoa = new Pessoa { Nome = nomePessoa };
             HttpResponseMessage response = await _httpClient.PostAsJsonAsync("pessoa", pessoa);
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<Pessoa> EditarPessoa(int idPessoa, string nomePessoa)
+        public async Task<Pessoa> EditarPessoa(Pessoa pessoa)
         {
-            Pessoa pessoa = new Pessoa { Id = idPessoa, Nome = nomePessoa };
-            //Console.Clear();
-            //Console.Write("\tOpção Escolhida - Editar Pessoa\nDigite o Id da Pessoa: ");
-            //string idPessoa = Console.ReadLine();
-            //pessoa.Id = Convert.ToInt32(idPessoa);
-            //Console.Write("\nDigite o nome: ");
-            //string nomePessoa = Console.ReadLine();
-            //pessoa.Nome = nomePessoa;
-
             HttpResponseMessage response = await _httpClient.PutAsJsonAsync(
                 $"pessoa/{pessoa.Id}", pessoa);
 
             if (response.IsSuccessStatusCode)
             {
                 // Deserialize the updated product from the response body.
-                pessoa = await response.Content.ReadFromJsonAsync<Pessoa>();
-                return pessoa;
+                return await response.Content.ReadFromJsonAsync<Pessoa>();
 
             }
             return null;
@@ -75,6 +62,12 @@ namespace ConsumerAPI.Services
             }
 
             return null;
+        }
+
+        public async Task<bool> ExcluirPessoa(int id)
+        {
+            HttpResponseMessage response = await _httpClient.DeleteAsync($"pessoa/{id}");
+            return response.IsSuccessStatusCode;
         }
     }
 }
