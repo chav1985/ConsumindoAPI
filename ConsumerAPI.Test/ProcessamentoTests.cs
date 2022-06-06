@@ -151,5 +151,155 @@ namespace ConsumerAPI.Test
             mocker.GetMock<IConsoleIO>().Verify(x => x.Write(It.IsAny<string>()), Times.Exactly(3));
             mocker.GetMock<IConsoleIO>().Verify(x => x.WriteLine(It.IsAny<string>()), Times.Exactly(2));
         }
+
+        [TestMethod]
+        [Description("Validando editar pessoa")]
+        public void IniciarEditarPessoaTest()
+        {
+            //arrange
+            mocker.GetMock<IConsoleIO>().SetupSequence(x => x.ReadLine()).Returns("3").Returns("1").Returns("Teste").Returns("0");
+            mocker.GetMock<IApiConsumer>().Setup(x => x.EditarPessoa(It.IsAny<Pessoa>())).ReturnsAsync(new Pessoa());
+            var processamento = mocker.CreateInstance<Processamento>();
+
+            //act
+            processamento.Iniciar(null);
+
+            //assert
+            mocker.GetMock<IConsoleIO>().Verify(x => x.Write(It.IsAny<string>()), Times.Exactly(4));
+            mocker.GetMock<IConsoleIO>().Verify(x => x.WriteLine(It.IsAny<string>()), Times.Exactly(2));
+        }
+
+        [TestMethod]
+        [Description("Erro ao editar pessoa")]
+        public void IniciarEditarPessoaErroTest()
+        {
+            //arrange
+            mocker.GetMock<IConsoleIO>().SetupSequence(x => x.ReadLine()).Returns("3").Returns("1").Returns("Teste").Returns("0");
+            mocker.GetMock<IApiConsumer>().Setup(x => x.EditarPessoa(It.IsAny<Pessoa>())).ReturnsAsync((Pessoa)null);
+            var processamento = mocker.CreateInstance<Processamento>();
+
+            //act
+            processamento.Iniciar(null);
+
+            //assert
+            mocker.GetMock<IConsoleIO>().Verify(x => x.Write(It.IsAny<string>()), Times.Exactly(4));
+            mocker.GetMock<IConsoleIO>().Verify(x => x.WriteLine(It.IsAny<string>()), Times.Exactly(2));
+        }
+
+        [TestMethod]
+        [Description("Validando editar pessoa opcao invalida")]
+        public void IniciarEditarPessoaOpcaoInvalidaTest()
+        {
+            //arrange
+            mocker.GetMock<IConsoleIO>().SetupSequence(x => x.ReadLine()).Returns("3").Returns("A").Returns("0");
+            var processamento = mocker.CreateInstance<Processamento>();
+
+            //act
+            processamento.Iniciar(null);
+
+            //assert
+            mocker.GetMock<IConsoleIO>().Verify(x => x.Write(It.IsAny<string>()), Times.Exactly(3));
+            mocker.GetMock<IConsoleIO>().Verify(x => x.WriteLine(It.IsAny<string>()), Times.Exactly(2));
+        }
+
+        [TestMethod]
+        [Description("Validando consultar pessoa por id")]
+        public void IniciarCOnsultarPessoaPorIdTest()
+        {
+            //arrange
+            mocker.GetMock<IConsoleIO>().SetupSequence(x => x.ReadLine()).Returns("4").Returns("1").Returns("0");
+            mocker.GetMock<IApiConsumer>().Setup(x => x.ConsultarPessoaById(It.IsAny<int>())).ReturnsAsync(new Pessoa());
+            var processamento = mocker.CreateInstance<Processamento>();
+
+            //act
+            processamento.Iniciar(null);
+
+            //assert
+            mocker.GetMock<IConsoleIO>().Verify(x => x.Write(It.IsAny<string>()), Times.Exactly(3));
+            mocker.GetMock<IConsoleIO>().Verify(x => x.WriteLine(It.IsAny<string>()), Times.Exactly(2));
+        }
+
+        [TestMethod]
+        [Description("Erro ao consultar pessoa por id")]
+        public void IniciarConsultarPessoaPorIdErroTest()
+        {
+            //arrange
+            mocker.GetMock<IConsoleIO>().SetupSequence(x => x.ReadLine()).Returns("4").Returns("1").Returns("0");
+            mocker.GetMock<IApiConsumer>().Setup(x => x.ConsultarPessoaById(It.IsAny<int>())).ReturnsAsync((Pessoa)null);
+            var processamento = mocker.CreateInstance<Processamento>();
+
+            //act
+            processamento.Iniciar(null);
+
+            //assert
+            mocker.GetMock<IConsoleIO>().Verify(x => x.Write(It.IsAny<string>()), Times.Exactly(3));
+            mocker.GetMock<IConsoleIO>().Verify(x => x.WriteLine(It.IsAny<string>()), Times.Exactly(2));
+        }
+
+        [TestMethod]
+        [Description("Validando consultar pessoa por id opcao invalida")]
+        public void IniciarConsultarPessoaPorIdOpcaoInvalidaTest()
+        {
+            //arrange
+            mocker.GetMock<IConsoleIO>().SetupSequence(x => x.ReadLine()).Returns("4").Returns("A").Returns("0");
+            var processamento = mocker.CreateInstance<Processamento>();
+
+            //act
+            processamento.Iniciar(null);
+
+            //assert
+            mocker.GetMock<IConsoleIO>().Verify(x => x.Write(It.IsAny<string>()), Times.Exactly(3));
+            mocker.GetMock<IConsoleIO>().Verify(x => x.WriteLine(It.IsAny<string>()), Times.Exactly(2));
+        }
+
+        [TestMethod]
+        [Description("Validando excluir pessoa")]
+        public void IniciarExcluirPessoaTest()
+        {
+            //arrange
+            mocker.GetMock<IConsoleIO>().SetupSequence(x => x.ReadLine()).Returns("5").Returns("1").Returns("0");
+            mocker.GetMock<IApiConsumer>().Setup(x => x.ExcluirPessoa(It.IsAny<int>())).ReturnsAsync(true);
+            var processamento = mocker.CreateInstance<Processamento>();
+
+            //act
+            processamento.Iniciar(null);
+
+            //assert
+            mocker.GetMock<IConsoleIO>().Verify(x => x.Write(It.IsAny<string>()), Times.Exactly(3));
+            mocker.GetMock<IConsoleIO>().Verify(x => x.WriteLine(It.IsAny<string>()), Times.Exactly(2));
+        }
+
+        [TestMethod]
+        [Description("Erro ao excluir pessoa")]
+        public void IniciarExcluirPessoaErroTest()
+        {
+            //arrange
+            mocker.GetMock<IConsoleIO>().SetupSequence(x => x.ReadLine()).Returns("5").Returns("1").Returns("0");
+            mocker.GetMock<IApiConsumer>().Setup(x => x.ExcluirPessoa(It.IsAny<int>())).ReturnsAsync(false);
+            var processamento = mocker.CreateInstance<Processamento>();
+
+            //act
+            processamento.Iniciar(null);
+
+            //assert
+            mocker.GetMock<IConsoleIO>().Verify(x => x.Write(It.IsAny<string>()), Times.Exactly(3));
+            mocker.GetMock<IConsoleIO>().Verify(x => x.WriteLine(It.IsAny<string>()), Times.Exactly(2));
+        }
+
+        [TestMethod]
+        [Description("Validando excluir pessoa opcao invalida")]
+        public void IniciarExcluirPessoaOpcaoInvalidaTest()
+        {
+            //arrange
+            mocker.GetMock<IConsoleIO>().SetupSequence(x => x.ReadLine()).Returns("5").Returns("A").Returns("0");
+            var processamento = mocker.CreateInstance<Processamento>();
+
+            //act
+            processamento.Iniciar(null);
+
+            //assert
+            mocker.GetMock<IConsoleIO>().Verify(x => x.Write(It.IsAny<string>()), Times.Exactly(3));
+            mocker.GetMock<IConsoleIO>().Verify(x => x.WriteLine(It.IsAny<string>()), Times.Exactly(2));
+        }
     }
 }
