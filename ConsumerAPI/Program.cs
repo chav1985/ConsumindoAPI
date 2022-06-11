@@ -2,9 +2,11 @@
 using ConsumerAPI.Interfaces;
 using ConsumerAPI.Services;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics.CodeAnalysis;
 
 namespace ConsumerAPI
 {
+    [ExcludeFromCodeCoverage]
     class Program
     {
         static void Main(string[] args)

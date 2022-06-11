@@ -1,8 +1,10 @@
 ﻿using ConsumerAPI.Interfaces;
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace ConsumerAPI.Helpers
 {
+    [ExcludeFromCodeCoverage]
     public class ConsoleIO : IConsoleIO
     {
         public void Clear()
