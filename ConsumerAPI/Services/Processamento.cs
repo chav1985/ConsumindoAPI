@@ -1,7 +1,9 @@
 ﻿using ConsumerAPI.Interfaces;
 using ConsumerAPI.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace ConsumerAPI.Services
@@ -35,8 +37,7 @@ namespace ConsumerAPI.Services
                         $"\n0 - Sair\n\n" +
                         $"Digite uma opção: ");
                     opcaoEscolhida = _console.ReadLine();
-                    int opcaoValida;
-                    bool validaOpcao = int.TryParse(opcaoEscolhida, out opcaoValida);
+                    bool validaOpcao = ValidaInteiro(opcaoEscolhida);
 
                     if (validaOpcao)
                     {
@@ -82,6 +83,7 @@ namespace ConsumerAPI.Services
             catch (Exception e)
             {
                 _console.WriteLine($"Erro na aplicação: {e.Message}");
+                _console.ReadKey();
             }
         }
 
@@ -90,19 +92,29 @@ namespace ConsumerAPI.Services
             _console.Clear();
             _console.Write("\tOpção Escolhida - Consultar Pessoas\n");
 
-            List<Pessoa> lstPessoas = await _apiConsumer.ConsultarPessoas();
-            if (lstPessoas is not null && lstPessoas.Count > 0)
+            var retornoApi = await _apiConsumer.ConsultarPessoas();
+
+            if (retornoApi.StatusId == HttpStatusCode.OK)
             {
-                foreach (var pessoa in lstPessoas)
+                var lstPessoas = JsonConvert.DeserializeObject<List<Pessoa>>(retornoApi.Content);
+
+                if (lstPessoas is not null && lstPessoas.Count > 0)
                 {
-                    _console.WriteLine($"Id: {pessoa.Id}, Nome: {pessoa.Nome}");
+                    foreach (var pessoa in lstPessoas)
+                    {
+                        _console.WriteLine($"Id: {pessoa.Id}, Nome: {pessoa.Nome}");
+                    }
+                    _console.ReadKey();
                 }
-                _console.ReadKey();
+                else
+                {
+                    _console.WriteLine("Sem Pessoas Cadastradas.");
+                    _console.ReadKey();
+                }
             }
             else
             {
-                _console.WriteLine("Sem Pessoas Cadastradas.");
-                _console.ReadKey();
+                TratarStatusCode(retornoApi);
             }
         }
 
@@ -110,17 +122,19 @@ namespace ConsumerAPI.Services
         {
             _console.Clear();
             _console.Write("\tOpção Escolhida - Criar Pessoa\nDigite o nome: ");
-            string nomePessoa = _console.ReadLine();
+            string nomePes = _console.ReadLine();
 
-            if (await _apiConsumer.CriarPessoa(new Pessoa { Nome = nomePessoa }))
+            var retornoApi = await _apiConsumer.CriarPessoa(new Pessoa { Nome = nomePes });
+
+            if (retornoApi.StatusId == HttpStatusCode.OK)
             {
-                _console.WriteLine("Pessoa Cadastrada.");
+                var pessoa = JsonConvert.DeserializeObject<Pessoa>(retornoApi.Content);
+                _console.WriteLine($"{pessoa.Nome} Cadastrado.");
                 _console.ReadKey();
             }
             else
             {
-                _console.WriteLine("Erro ao Cadastrar a Pessoa.");
-                _console.ReadKey();
+                TratarStatusCode(retornoApi);
             }
         }
 
@@ -130,21 +144,21 @@ namespace ConsumerAPI.Services
             _console.Write("\tOpção Escolhida - Editar Pessoa\nDigite o Id da Pessoa: ");
             string idPes = _console.ReadLine();
 
-            int valorComp;
-            if (int.TryParse(idPes, out valorComp))
+            if (ValidaInteiro(idPes))
             {
                 _console.Write("Digite o nome: ");
                 string nomePes = _console.ReadLine();
-                Pessoa itemPessoa = await _apiConsumer.EditarPessoa(new Pessoa { Id = int.Parse(idPes), Nome = nomePes });
-                if (itemPessoa != null)
+
+                var retornoApi = await _apiConsumer.EditarPessoa(new Pessoa { Id = int.Parse(idPes), Nome = nomePes });
+
+                if (retornoApi.StatusId == HttpStatusCode.OK)
                 {
                     _console.WriteLine("Pessoa Editada.");
                     _console.ReadKey();
                 }
                 else
                 {
-                    _console.WriteLine("Erro ao Editar a Pessoa.");
-                    _console.ReadKey();
+                    TratarStatusCode(retornoApi);
                 }
             }
             else
@@ -158,20 +172,21 @@ namespace ConsumerAPI.Services
         {
             _console.Clear();
             _console.Write("\tOpção Escolhida - Consultar Pessoa por Id\nDigite o Id da pessoa: ");
-            string idPessoa = _console.ReadLine();
-            int valorCompara;
-            if (int.TryParse(idPessoa, out valorCompara))
+            string idPes = _console.ReadLine();
+
+            if (ValidaInteiro(idPes))
             {
-                Pessoa pessoa = await _apiConsumer.ConsultarPessoaById(int.Parse(idPessoa));
-                if (pessoa != null)
+                var retornoApi = await _apiConsumer.ConsultarPessoaById(int.Parse(idPes));
+
+                if (retornoApi.StatusId == HttpStatusCode.OK)
                 {
+                    var pessoa = JsonConvert.DeserializeObject<Pessoa>(retornoApi.Content);
                     _console.WriteLine($"Id: {pessoa.Id}, Nome: {pessoa.Nome}");
                     _console.ReadKey();
                 }
                 else
                 {
-                    _console.WriteLine($"Pessoa com o Id {idPessoa} não cadastrada");
-                    _console.ReadKey();
+                    TratarStatusCode(retornoApi);
                 }
             }
             else
@@ -185,19 +200,20 @@ namespace ConsumerAPI.Services
         {
             _console.Clear();
             _console.Write("\tOpção Escolhida - Excluir Pessoa\nDigite o Id da pessoa a excluir: ");
-            string idPesExcluir = _console.ReadLine();
-            int valorCompara;
-            if (int.TryParse(idPesExcluir, out valorCompara))
+            string idPes = _console.ReadLine();
+
+            if (ValidaInteiro(idPes))
             {
-                if (await _apiConsumer.ExcluirPessoa(int.Parse(idPesExcluir)))
+                var retornoApi = await _apiConsumer.ExcluirPessoa(int.Parse(idPes));
+
+                if (retornoApi.StatusId == HttpStatusCode.OK)
                 {
-                    _console.WriteLine($"Pessoa com o Id {idPesExcluir} excluida");
+                    _console.WriteLine($"Pessoa com o Id {idPes} excluida.");
                     _console.ReadKey();
                 }
                 else
                 {
-                    _console.WriteLine($"Pessoa com o Id {idPesExcluir} não cadastrada");
-                    _console.ReadKey();
+                    TratarStatusCode(retornoApi);
                 }
             }
             else
@@ -211,6 +227,30 @@ namespace ConsumerAPI.Services
         {
             _console.Clear();
             _console.WriteLine("\tOpção Escolhida - Sair");
+            _console.ReadKey();
+        }
+
+        private bool ValidaInteiro(string valor)
+        {
+            int valorCompara;
+            return int.TryParse(valor, out valorCompara);
+        }
+
+        private void TratarStatusCode(ResponseMessage response)
+        {
+            switch (response.StatusId)
+            {
+                case HttpStatusCode.NotFound:
+                    _console.WriteLine("Objeto não localizado.");
+                    break;
+                case HttpStatusCode.BadRequest:
+                    var stringJson = JsonConvert.DeserializeObject(response.Content);
+                    _console.WriteLine($"Erros na resposta da requisição: \n{stringJson}");
+                    break;
+                default:
+                    _console.WriteLine("Erro generico, sem tratamento.");
+                    break;
+            }
             _console.ReadKey();
         }
     }

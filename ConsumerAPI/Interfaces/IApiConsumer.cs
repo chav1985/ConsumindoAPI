@@ -6,10 +6,10 @@ namespace ConsumerAPI.Interfaces
 {
     public interface IApiConsumer
     {
-        Task<List<Pessoa>> ConsultarPessoas();
-        Task<bool> CriarPessoa(Pessoa pessoa);
-        Task<Pessoa> EditarPessoa(Pessoa pessoa);
-        Task<Pessoa> ConsultarPessoaById(int id);
-        Task<bool> ExcluirPessoa(int id);
+        Task<ResponseMessage> ConsultarPessoas();
+        Task<ResponseMessage> CriarPessoa(Pessoa pessoa);
+        Task<ResponseMessage> EditarPessoa(Pessoa pessoa);
+        Task<ResponseMessage> ConsultarPessoaById(int id);
+        Task<ResponseMessage> ExcluirPessoa(int id);
     }
 }

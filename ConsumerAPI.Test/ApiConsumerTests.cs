@@ -17,12 +17,14 @@ namespace ConsumerAPI.Test
         private List<Pessoa> lstPessoas;
         private HttpClient http;
         private ApiConsumer api;
+        private ResponseMessage response;
 
         [TestInitialize]
         public void Setup()
         {
             mockHttp = new MockHttpMessageHandler();
             lstPessoas = new List<Pessoa>();
+            response = new ResponseMessage();
         }
 
         [TestMethod]
@@ -34,13 +36,14 @@ namespace ConsumerAPI.Test
             string jsonPessoas = JsonConvert.SerializeObject(lstPessoas);
             mockHttp.When("https://localhost:5010/api/*").Respond("application/json", jsonPessoas);
             http = new HttpClient(mockHttp);
-            api = new ApiConsumer(http);
+            api = new ApiConsumer(http, response);
 
             //act
             var validaRetorno = await api.ConsultarPessoas();
 
             //assert
-            Assert.AreEqual(1, validaRetorno.Count);
+            var objDeserialize = JsonConvert.DeserializeObject<List<Pessoa>>(validaRetorno.Content);
+            Assert.AreEqual(1, objDeserialize.Count);
         }
 
         [TestMethod]
@@ -51,13 +54,13 @@ namespace ConsumerAPI.Test
             string jsonPessoas = JsonConvert.SerializeObject(lstPessoas);
             mockHttp.When("https://localhost:5010/api/*").Respond(HttpStatusCode.NotFound);
             http = new HttpClient(mockHttp);
-            api = new ApiConsumer(http);
+            api = new ApiConsumer(http, response);
 
             //act
             var validaRetorno = await api.ConsultarPessoas();
 
             //assert
-            Assert.IsNull(validaRetorno);
+            Assert.AreEqual(HttpStatusCode.NotFound, validaRetorno.StatusId);
         }
 
         [TestMethod]
@@ -65,15 +68,17 @@ namespace ConsumerAPI.Test
         public async Task CriarPessoaTest()
         {
             //arrange
-            mockHttp.When("https://localhost:5010/api/*").Respond(HttpStatusCode.OK);
+            string pessoa = "{\"Id\": 1, \"Nome\": \"Teste123\"}";
+            mockHttp.When("https://localhost:5010/api/*").Respond("application/json", pessoa);
             http = new HttpClient(mockHttp);
-            api = new ApiConsumer(http);
+            api = new ApiConsumer(http, response);
 
             //act
             var validaRetorno = await api.CriarPessoa(new Pessoa { Id = 1, Nome = "Teste" });
 
             //assert
-            Assert.AreEqual(true, validaRetorno);
+            var objDeserialize = JsonConvert.DeserializeObject<Pessoa>(validaRetorno.Content);
+            Assert.AreEqual("Teste123", objDeserialize.Nome);
         }
 
         [TestMethod]
@@ -83,13 +88,13 @@ namespace ConsumerAPI.Test
             //arrange
             mockHttp.When("https://localhost:5010/api/*").Respond(HttpStatusCode.BadRequest);
             http = new HttpClient(mockHttp);
-            api = new ApiConsumer(http);
+            api = new ApiConsumer(http, response);
 
             //act
             var validaRetorno = await api.CriarPessoa(new Pessoa { Id = 1, Nome = "Teste" });
 
             //assert
-            Assert.AreEqual(false, validaRetorno);
+            Assert.AreEqual(HttpStatusCode.BadRequest, validaRetorno.StatusId);
         }
 
         [TestMethod]
@@ -97,16 +102,17 @@ namespace ConsumerAPI.Test
         public async Task EditarPessoaTest()
         {
             //arrange
-            string pessoa = "{\"Id\": 1, \"Nome\": \"Teste\"}";
+            string pessoa = "{\"Id\": 1, \"Nome\": \"Teste321\"}";
             mockHttp.When("https://localhost:5010/api/*").Respond("application/json", pessoa);
             http = new HttpClient(mockHttp);
-            api = new ApiConsumer(http);
+            api = new ApiConsumer(http, response);
 
             //act
             var validaRetorno = await api.EditarPessoa(new Pessoa());
 
             //assert
-            Assert.AreEqual("Teste", validaRetorno.Nome);
+            var objDeserialize = JsonConvert.DeserializeObject<Pessoa>(validaRetorno.Content);
+            Assert.AreEqual("Teste321", objDeserialize.Nome);
         }
 
         [TestMethod]
@@ -116,13 +122,13 @@ namespace ConsumerAPI.Test
             //arrange
             mockHttp.When("https://localhost:5010/api/*").Respond(HttpStatusCode.NotFound);
             http = new HttpClient(mockHttp);
-            api = new ApiConsumer(http);
+            api = new ApiConsumer(http, response);
 
             //act
             var validaRetorno = await api.EditarPessoa(new Pessoa());
 
             //assert
-            Assert.IsNull(validaRetorno);
+            Assert.AreEqual(HttpStatusCode.NotFound, validaRetorno.StatusId);
         }
 
         [TestMethod]
@@ -133,13 +139,14 @@ namespace ConsumerAPI.Test
             string pessoa = "{\"Id\": 1, \"Nome\": \"Teste123\"}";
             mockHttp.When("https://localhost:5010/api/*").Respond("application/json", pessoa);
             http = new HttpClient(mockHttp);
-            api = new ApiConsumer(http);
+            api = new ApiConsumer(http, response);
 
             //act
             var validaRetorno = await api.ConsultarPessoaById(1);
 
             //assert
-            Assert.AreEqual("Teste123", validaRetorno.Nome);
+            var objDeserialize = JsonConvert.DeserializeObject<Pessoa>(validaRetorno.Content);
+            Assert.AreEqual("Teste123", objDeserialize.Nome);
         }
 
         [TestMethod]
@@ -147,16 +154,15 @@ namespace ConsumerAPI.Test
         public async Task ConsultarPessoaByIdErroTest()
         {
             //arrange
-            //string pessoa = "{\"Id\": 1, \"Nome\": \"Teste123\"}";
             mockHttp.When("https://localhost:5010/api/*").Respond(HttpStatusCode.NotFound);
             http = new HttpClient(mockHttp);
-            api = new ApiConsumer(http);
+            api = new ApiConsumer(http, response);
 
             //act
             var validaRetorno = await api.ConsultarPessoaById(1);
 
             //assert
-            Assert.IsNull(validaRetorno);
+            Assert.AreEqual(HttpStatusCode.NotFound, validaRetorno.StatusId);
         }
 
         [TestMethod]
@@ -164,15 +170,17 @@ namespace ConsumerAPI.Test
         public async Task ExcluirPessoaTest()
         {
             //arrange
-            mockHttp.When("https://localhost:5010/api/*").Respond(HttpStatusCode.OK);
+            string pessoa = "{\"Id\": 1, \"Nome\": \"Teste123\"}";
+            mockHttp.When("https://localhost:5010/api/*").Respond("application/json", pessoa);
             http = new HttpClient(mockHttp);
-            api = new ApiConsumer(http);
+            api = new ApiConsumer(http, response);
 
             //act
             var validaRetorno = await api.ExcluirPessoa(1);
 
             //assert
-            Assert.AreEqual(true, validaRetorno);
+            var objDeserialize = JsonConvert.DeserializeObject<Pessoa>(validaRetorno.Content);
+            Assert.AreEqual("Teste123", objDeserialize.Nome);
         }
 
         [TestMethod]
@@ -182,13 +190,13 @@ namespace ConsumerAPI.Test
             //arrange
             mockHttp.When("https://localhost:5010/api/*").Respond(HttpStatusCode.NotFound);
             http = new HttpClient(mockHttp);
-            api = new ApiConsumer(http);
+            api = new ApiConsumer(http, response);
 
             //act
             var validaRetorno = await api.ExcluirPessoa(1);
 
             //assert
-            Assert.AreEqual(false, validaRetorno);
+            Assert.AreEqual(HttpStatusCode.NotFound, validaRetorno.StatusId);
         }
     }
 }
