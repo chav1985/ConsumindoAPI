@@ -1,5 +1,4 @@
-﻿using ConsumerAPI.Interfaces;
-using System.Net;
+﻿using System.Net;
 
 namespace ConsumerAPI.Models
 {
